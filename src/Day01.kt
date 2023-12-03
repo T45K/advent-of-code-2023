@@ -1,17 +1,13 @@
+package day01
+
+import readInput
+
 fun main() {
-    fun part1(input: List<String>): Int {
-        return input.size
-    }
-
-    fun part2(input: List<String>): Int {
-        return input.size
-    }
-
-    // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day01_test")
-    check(part1(testInput) == 1)
-
-    val input = readInput("Day01")
-    part1(input).println()
-    part2(input).println()
+    val input = readInput("input/Day01.txt")
+    val answer = input.map {
+        val firstDigit = it.find(Char::isDigit).toString()
+        val lastDigit = it.findLast(Char::isDigit).toString()
+        (firstDigit + lastDigit).toInt()
+    }.sum()
+    println(answer)
 }
