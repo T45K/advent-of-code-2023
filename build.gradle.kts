@@ -1,6 +1,8 @@
 plugins {
-    kotlin("jvm") version "1.9.21"
+    kotlin("jvm") version "2.0.0-Beta1"
 }
+
+kotlin.jvmToolchain(21)
 
 sourceSets {
     main {
