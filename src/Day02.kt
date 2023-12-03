@@ -1,20 +1,25 @@
-@file:OptIn(ExperimentalContracts::class)
-
 package day02
 
-import kotlin.contracts.ExperimentalContracts
 import readInput
 
 fun main() {
     val input = readInput("input/Day02.txt")
-    val answer = input.mapNotNull { Game.parse(it) }
-        .filter { game ->
-            game.trials.values.all { it.red <= RED }
-                && game.trials.values.all { it.green <= GREEN }
-                && game.trials.values.all { it.blue <= BLUE }
-        }
-        .sumOf { it.id }
+    val answer = part2(input)
     println(answer)
+}
+
+fun part1(input: List<String>) = input.mapNotNull { Game.parse(it) }
+    .filter { game ->
+        game.trials.values.all { it.red <= RED }
+            && game.trials.values.all { it.green <= GREEN }
+            && game.trials.values.all { it.blue <= BLUE }
+    }
+    .sumOf { it.id }
+
+fun part2(input: List<String>) = input.mapNotNull { Game.parse(it) }.sumOf { (_, trials) ->
+    trials.values.maxOf { it.red }.toLong() *
+        trials.values.maxOf { it.green } *
+        trials.values.maxOf { it.blue }
 }
 
 private const val RED = 12
