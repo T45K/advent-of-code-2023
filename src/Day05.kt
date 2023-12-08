@@ -65,7 +65,6 @@ private fun List<MappingRule>.reverseConvert(value: Long): Long =
         ?.let { it.source + value - it.dest }
         ?: value
 
-
 private data class MappingRule(
     val dest: Long,
     val source: Long,
