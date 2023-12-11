@@ -6,15 +6,18 @@ import readInput
 
 fun main() {
     val input = readInput("input/Day11.txt")
-    val answer = part1(input)
+    val answer = part2(input)
     println(answer)
 }
 
-private fun part1(input: List<String>): Long {
+private fun part1(input: List<String>): Long = sumDistancesOfAllPairs(input, 1)
+private fun part2(input: List<String>): Long = sumDistancesOfAllPairs(input, 999_999)
+
+private fun sumDistancesOfAllPairs(input: List<String>, expansion: Long): Long {
     val rows = input.size
     val rowEmptyAcc = Array(rows) {
         if (input[it].contains("#")) 0
-        else 1
+        else expansion
     }
     for (i in 1..<rows) {
         rowEmptyAcc[i] += rowEmptyAcc[i - 1]
@@ -23,7 +26,7 @@ private fun part1(input: List<String>): Long {
     val cols = input[0].length
     val colEmptyAcc = Array(cols) {
         if (input.any { line -> line[it] == '#' }) 0
-        else 1
+        else expansion
     }
     for (i in 1..<cols) {
         colEmptyAcc[i] += colEmptyAcc[i - 1]
@@ -44,7 +47,7 @@ private fun part1(input: List<String>): Long {
             val minY = min(fromY, toY)
             maxX - minX + rowEmptyAcc[maxX] - rowEmptyAcc[minX] +
                 maxY - minY + colEmptyAcc[maxY] - colEmptyAcc[minY]
-        }.map { it.toLong() }
+        }
     }.sum()
 }
 
