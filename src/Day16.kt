@@ -4,11 +4,40 @@ import readInput
 
 fun main() {
     val input = readInput("input/Day16.txt")
+    val answer = part2(input)
+    println(answer)
+}
+
+private fun part1(input: List<String>): Int {
     val board = input.map { it.toCharArray().toList() }
     val routes = Array(board.size) { Array(board[0].size) { 0 } }
     dfs(routes, Point(0, 0), RIGHT, board)
-    val answer = routes.sumOf { array -> array.count { it > 0 } }
-    println(answer)
+    return routes.sumOf { array -> array.count { it > 0 } }
+}
+
+private fun part2(input: List<String>): Int {
+    val board = input.map { it.toCharArray().toList() }
+    val fromLeft = board.indices.maxOf { index ->
+        val routes = Array(board.size) { Array(board[0].size) { 0 } }
+        dfs(routes, Point(index, 0), RIGHT, board)
+        routes.sumOf { array -> array.count { it > 0 } }
+    }
+    val fromRight = board.indices.maxOf { index ->
+        val routes = Array(board.size) { Array(board[0].size) { 0 } }
+        dfs(routes, Point(index, board[0].size - 1), LEFT, board)
+        routes.sumOf { array -> array.count { it > 0 } }
+    }
+    val fromTop = board[0].indices.maxOf { index ->
+        val routes = Array(board.size) { Array(board[0].size) { 0 } }
+        dfs(routes, Point(0, index), DOWN, board)
+        routes.sumOf { array -> array.count { it > 0 } }
+    }
+    val fromBottom = board[0].indices.maxOf { index ->
+        val routes = Array(board.size) { Array(board[0].size) { 0 } }
+        dfs(routes, Point(board.size - 1, index), UP, board)
+        routes.sumOf { array -> array.count { it > 0 } }
+    }
+    return listOf(fromLeft, fromRight, fromTop, fromBottom).max()
 }
 
 private fun dfs(routes: Array<Array<Int>>, point: Point, direction: Int, board: List<List<Char>>) {
