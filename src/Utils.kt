@@ -20,17 +20,18 @@ fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteA
  */
 fun Any?.println() = println(this)
 
-fun <T> List<T>.split(predicate: (T) -> Boolean): List<List<T>> = this.fold(emptyList<List<T>>() to emptyList<T>()) { (all, tmp), v ->
-    if (predicate(v)) {
-        if (tmp.isEmpty()) all to emptyList()
-        else all append tmp to emptyList()
-    } else {
-        all to (tmp + v)
+fun <T> List<T>.split(predicate: (T) -> Boolean): List<List<T>> =
+    this.fold(emptyList<List<T>>() to emptyList<T>()) { (all, tmp), v ->
+        if (predicate(v)) {
+            if (tmp.isEmpty()) all to emptyList()
+            else all append tmp to emptyList()
+        } else {
+            all to (tmp + v)
+        }
+    }.let { (all, tmp) ->
+        if (tmp.isEmpty()) all
+        else all append tmp
     }
-}.let { (all, tmp) ->
-    if (tmp.isEmpty()) all
-    else all append tmp
-}
 
 infix fun <T> List<List<T>>.append(list: List<T>): List<List<T>> = this.plus<List<T>>(list)
 
@@ -39,3 +40,9 @@ fun <T> List<List<T>>.transpose(): List<List<T>> =
     else (this[0].indices).map { j ->
         (this.indices).map { i -> this[i][j] }
     }
+
+fun String.substringBetween(fromDelimiter: String, untilDelimiter: String): String =
+    this.substringAfter(fromDelimiter).substringBefore(untilDelimiter)
+
+fun String.substringBetween(fromDelimiter: Char, untilDelimiter: Char): String =
+    this.substringAfter(fromDelimiter).substringBefore(untilDelimiter)
