@@ -5,6 +5,11 @@ import java.util.PriorityQueue
 
 fun main() {
     val input = readInput("input/Day17.txt")
+    val answer = part2(input)
+    println(answer)
+}
+
+private fun part1(input: List<String>): Int {
     val map = input.map { it.toCharArray().map(Char::digitToInt) }
     val distances = Array(map.size) { Array(map[0].size) { Distance() } }
     val queue = PriorityQueue<Triple<Point, DirectionAndCount, Int>>(compareBy { it.third })
@@ -14,8 +19,7 @@ fun main() {
         val (currentPoint, directionAndCount, currentDistance) = queue.poll()
         val (x, y) = currentPoint
         if (x == map.size - 1 && y == map[0].size - 1) {
-            println(currentDistance)
-            return
+            return currentDistance
         }
         if (distances[x][y][directionAndCount] <= currentDistance) {
             continue
@@ -46,6 +50,68 @@ fun main() {
             }
         }
     }
+    throw IllegalStateException()
+}
+
+private fun part2(input: List<String>): Int {
+    val map = input.map { it.toCharArray().map(Char::digitToInt) }
+    val distances = Array(map.size) { Array(map[0].size) { Distance() } }
+    val queue = PriorityQueue<Triple<Point, DirectionAndCount, Int>>(compareBy { it.third })
+    queue.add(
+        Triple(
+            Point(0, 4),
+            DirectionAndCount(Direction.RIGHT, 4),
+            (1..4).map { nextPoint(Point(0, 0), Direction.RIGHT, it) }.sumOf { map[it.x][it.y] },
+        )
+    )
+    queue.add(
+        Triple(
+            Point(4, 0),
+            DirectionAndCount(Direction.DOWN, 4),
+            (1..4).map { nextPoint(Point(0, 0), Direction.DOWN, it) }.sumOf { map[it.x][it.y] }
+        )
+    )
+    while (queue.isNotEmpty()) {
+        val (currentPoint, directionAndCount, currentDistance) = queue.poll()
+        val (x, y) = currentPoint
+        if (x == map.size - 1 && y == map[0].size - 1) {
+            return currentDistance
+        }
+        if (distances[x][y][directionAndCount] <= currentDistance) {
+            continue
+        }
+        distances[x][y][directionAndCount] = currentDistance
+        val (fromDirection, count) = directionAndCount
+        for (toDirection in Direction.entries) {
+            if (toDirection.opposite() == fromDirection) {
+                continue
+            }
+            if (toDirection != fromDirection) {
+                val nextPoint = nextPoint(currentPoint, toDirection, 4)
+                if (nextPoint !in map) {
+                    continue
+                }
+                val nextDistance = distances[x][y].min(fromDirection) +
+                    (1..4).map { nextPoint(currentPoint, toDirection, it) }.sumOf { map[it.x][it.y] }
+                val nextDirectionAndCount = DirectionAndCount(toDirection, 4)
+                if (distances[nextPoint.x][nextPoint.y][nextDirectionAndCount] > nextDistance) {
+                    queue.add(Triple(nextPoint, nextDirectionAndCount, nextDistance))
+                }
+            }
+            if (toDirection == fromDirection && count < 10) {
+                val nextPoint = nextPoint(currentPoint, toDirection)
+                if (nextPoint !in map) {
+                    continue
+                }
+                val nextDistance = currentDistance + map[nextPoint.x][nextPoint.y]
+                val nextDirectionAndCount = DirectionAndCount(toDirection, count + 1)
+                if (distances[nextPoint.x][nextPoint.y][nextDirectionAndCount] > nextDistance) {
+                    queue.add(Triple(nextPoint, nextDirectionAndCount, nextDistance))
+                }
+            }
+        }
+    }
+    throw IllegalStateException()
 }
 
 private operator fun List<List<Int>>.contains(point: Point): Boolean =
@@ -64,11 +130,11 @@ private enum class Direction {
 
 private data class Point(val x: Int, val y: Int)
 
-private fun nextPoint(point: Point, direction: Direction): Point = when (direction) {
-    Direction.UP -> Point(point.x - 1, point.y)
-    Direction.RIGHT -> Point(point.x, point.y + 1)
-    Direction.DOWN -> Point(point.x + 1, point.y)
-    Direction.LEFT -> Point(point.x, point.y - 1)
+private fun nextPoint(point: Point, direction: Direction, step: Int = 1): Point = when (direction) {
+    Direction.UP -> Point(point.x - step, point.y)
+    Direction.RIGHT -> Point(point.x, point.y + step)
+    Direction.DOWN -> Point(point.x + step, point.y)
+    Direction.LEFT -> Point(point.x, point.y - step)
 }
 
 private class Distance {
@@ -76,18 +142,16 @@ private class Distance {
 
     operator fun get(directionAndCount: DirectionAndCount): Int {
         val (direction, count) = directionAndCount
-        require(count in 1..3)
         return values[direction]?.get(count) ?: Int.MAX_VALUE
     }
 
     operator fun set(directionAndCount: DirectionAndCount, distance: Int) {
         val (direction, count) = directionAndCount
-        require(count in 1..3)
         values.computeIfAbsent(direction) { mutableMapOf() }[count] = distance
     }
 
     fun min(direction: Direction): Int {
-        return (1..3).minOf { get(DirectionAndCount(direction, it)) }
+        return (1..10).minOf { get(DirectionAndCount(direction, it)) }
     }
 }
 
